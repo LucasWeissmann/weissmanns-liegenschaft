@@ -94,13 +94,19 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
         ))}
 
         {showNow && (
-          <div
-            className="absolute z-20 pointer-events-none flex flex-col items-center -translate-x-1/2"
-            style={{ left: `${nowPosition}%`, top: 0, bottom: 0 }}
-          >
-            <div className="w-[2px] h-full bg-rose-500/60" />
-            <div className="absolute top-0.5 w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40 animate-pulse-dot" />
-          </div>
+          <>
+            <div
+              className="absolute top-0 bottom-0 left-0 bg-gray-900/[0.06] pointer-events-none z-10 rounded-l-2xl"
+              style={{ width: `${nowPosition}%` }}
+            />
+            <div
+              className="absolute z-20 pointer-events-none flex flex-col items-center -translate-x-1/2"
+              style={{ left: `${nowPosition}%`, top: 0, bottom: 0 }}
+            >
+              <div className="w-[2px] h-full bg-rose-500/60" />
+              <div className="absolute top-0.5 w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40 animate-pulse-dot" />
+            </div>
+          </>
         )}
 
         {bookings.map((b) => {
