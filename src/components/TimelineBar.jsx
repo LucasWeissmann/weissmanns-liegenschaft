@@ -74,6 +74,7 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
       <div
         className="relative h-12 bg-pool-50/60 rounded-2xl overflow-hidden cursor-pointer border border-pool-100/40"
         onClick={(e) => {
+          e.stopPropagation()
           const rect = e.currentTarget.getBoundingClientRect()
           const x = e.clientX - rect.left
           const pct = x / rect.width
