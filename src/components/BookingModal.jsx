@@ -36,7 +36,7 @@ function snapToNearest(time, minTime) {
 
 function defaultEndTime(startTime) {
   const [h, m] = startTime.split(':').map(Number)
-  const endH = Math.min(h + 2, 21)
+  const endH = Math.min(h + 1, 21)
   return `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
