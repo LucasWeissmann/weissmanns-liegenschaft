@@ -1,51 +1,46 @@
-import { initializeApp } from 'firebase/app'
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
-  collection,
-  query,
-  where,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  doc,
-  serverTimestamp,
-} from 'firebase/firestore'
+let _db = null
+let _firebaseReady = null
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyD4Y9oMOaYViwJ2y0mkJok7vGlIVGtjZ1E',
-  authDomain: 'weissmanns-liegenschaft.firebaseapp.com',
-  projectId: 'weissmanns-liegenschaft',
-  storageBucket: 'weissmanns-liegenschaft.firebasestorage.app',
-  messagingSenderId: '590020533222',
-  appId: '1:590020533222:web:bfd8d048f085f42a479427',
+function getDb() {
+  if (_firebaseReady) return _firebaseReady
+  _firebaseReady = import('./firebase-core.js').then(({ db }) => {
+    _db = db
+    return db
+  })
+  return _firebaseReady
 }
 
-const app = initializeApp(firebaseConfig)
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-})
-
-const BOOKINGS_COLLECTION = 'bookings'
-
 export function subscribeToBookings(date, callback) {
-  const q = query(
-    collection(db, BOOKINGS_COLLECTION),
-    where('date', '==', date)
-  )
+  let unsubscribe = null
+  let cancelled = false
 
-  return onSnapshot(q, (snapshot) => {
-    const bookings = snapshot.docs.map((d) => ({
-      id: d.id,
-      ...d.data(),
-    }))
-    callback(bookings)
+  getDb().then(async (db) => {
+    if (cancelled) return
+    const { collection, query, where, onSnapshot } = await import('firebase/firestore')
+    if (cancelled) return
+    const q = query(
+      collection(db, 'bookings'),
+      where('date', '==', date)
+    )
+    unsubscribe = onSnapshot(q, (snapshot) => {
+      const bookings = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }))
+      callback(bookings)
+    })
   })
+
+  return () => {
+    cancelled = true
+    unsubscribe?.()
+  }
 }
 
 export async function createBooking({ liege, date, startTime, endTime, name }) {
-  return addDoc(collection(db, BOOKINGS_COLLECTION), {
+  const db = await getDb()
+  const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+  return addDoc(collection(db, 'bookings'), {
     liege,
     date,
     startTime,
@@ -56,7 +51,9 @@ export async function createBooking({ liege, date, startTime, endTime, name }) {
 }
 
 export async function removeBooking(bookingId) {
-  return deleteDoc(doc(db, BOOKINGS_COLLECTION, bookingId))
+  const db = await getDb()
+  const { doc, deleteDoc } = await import('firebase/firestore')
+  return deleteDoc(doc(db, 'bookings', bookingId))
 }
 
 export function hasOverlap(existingBookings, liege, startTime, endTime) {

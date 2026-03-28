@@ -84,16 +84,25 @@ export default function App() {
       return
     }
 
-    await createBooking({ liege, date: dateStr, startTime, endTime, name })
-    setBookingModal(null)
-    setBookingError(null)
-    showToast('Buchung erfolgreich!')
+    try {
+      await createBooking({ liege, date: dateStr, startTime, endTime, name })
+      setBookingModal(null)
+      setBookingError(null)
+      showToast('Buchung erfolgreich!')
+    } catch {
+      setBookingError('Fehler beim Speichern. Bitte versuche es erneut.')
+    }
   }
 
   const handleDelete = async (bookingId) => {
-    await removeBooking(bookingId)
-    setDeleteModal(null)
-    showToast('Buchung gelöscht')
+    try {
+      await removeBooking(bookingId)
+      setDeleteModal(null)
+      showToast('Buchung gelöscht')
+    } catch {
+      setDeleteModal(null)
+      showToast('Fehler beim Löschen. Bitte versuche es erneut.')
+    }
   }
 
   return (

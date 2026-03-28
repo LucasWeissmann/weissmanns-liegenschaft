@@ -140,9 +140,7 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
 
       <div className="flex justify-between text-[10px] text-gray-400 font-medium px-1 mt-1.5">
         {TIME_LABELS.map(({ hour, label }) => (
-          <span key={hour} style={{ position: 'relative', left: `${((hour - START_HOUR) / TOTAL_HOURS) * 0}%` }}>
-            {label}
-          </span>
+          <span key={hour}>{label}</span>
         ))}
       </div>
     </div>
