@@ -24,6 +24,10 @@ function checkIsToday(date) {
   return toDateString(date) === toDateString(now)
 }
 
+function isPast(date) {
+  return toDateString(date) < toDateString(new Date())
+}
+
 export default function App() {
   const [date, setDate] = useState(new Date())
   const [bookings, setBookings] = useState([])
@@ -54,11 +58,27 @@ export default function App() {
   }
 
   const handleSlotClick = (liege, time) => {
+    if (isPast(date)) {
+      showToast('Buchungen in der Vergangenheit sind nicht möglich')
+      return
+    }
     setBookingError(null)
     setBookingModal({ liege, time })
   }
 
   const handleBook = async ({ liege, name, startTime, endTime }) => {
+    if (isToday) {
+      const parts = Object.fromEntries(
+        new Intl.DateTimeFormat('de-DE', { timeZone: TZ, hour: 'numeric', minute: 'numeric', hour12: false })
+          .formatToParts(new Date()).map(p => [p.type, p.value])
+      )
+      const nowStr = `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
+      if (endTime <= nowStr) {
+        setBookingError('Diese Zeit liegt in der Vergangenheit.')
+        return
+      }
+    }
+
     if (hasOverlap(bookings, liege, startTime, endTime)) {
       setBookingError('Diese Zeit ist bereits belegt. Bitte wähle eine andere Zeit.')
       return
@@ -133,6 +153,7 @@ export default function App() {
         <BookingModal
           liege={bookingModal.liege}
           initialTime={bookingModal.time}
+          isToday={isToday}
           error={bookingError}
           onBook={handleBook}
           onClose={() => {

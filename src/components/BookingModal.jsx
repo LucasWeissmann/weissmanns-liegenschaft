@@ -1,5 +1,7 @@
 import { useState } from 'react'
 
+const TZ = 'Europe/Berlin'
+
 function generateTimeOptions() {
   const options = []
   for (let h = 7; h <= 21; h++) {
@@ -13,13 +15,23 @@ function generateTimeOptions() {
 
 const TIME_OPTIONS = generateTimeOptions()
 
-function snapToNearest(time) {
+function germanNowTimeStr() {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('de-DE', { timeZone: TZ, hour: 'numeric', minute: 'numeric', hour12: false })
+      .formatToParts(new Date()).map(p => [p.type, p.value])
+  )
+  return `${String(parts.hour).padStart(2, '0')}:${String(parts.minute).padStart(2, '0')}`
+}
+
+function snapToNearest(time, minTime) {
   const [h, m] = time.split(':').map(Number)
   const snapped = m < 15 ? '00' : m < 45 ? '30' : '00'
   const hour = m >= 45 ? h + 1 : h
   if (hour > 21) return '21:00'
   if (hour < 7) return '07:00'
-  return `${String(hour).padStart(2, '0')}:${snapped}`
+  const result = `${String(hour).padStart(2, '0')}:${snapped}`
+  if (minTime && result < minTime) return minTime
+  return result
 }
 
 function defaultEndTime(startTime) {
@@ -38,13 +50,16 @@ function SelectChevron() {
   )
 }
 
-export default function BookingModal({ liege, initialTime, onBook, onClose, error }) {
-  const snapped = snapToNearest(initialTime || '10:00')
+export default function BookingModal({ liege, initialTime, isToday, onBook, onClose, error }) {
+  const nowStr = isToday ? germanNowTimeStr() : null
+  const minStart = isToday ? snapToNearest(nowStr, null) : null
+  const snapped = snapToNearest(initialTime || '10:00', minStart)
   const [name, setName] = useState('')
   const [startTime, setStartTime] = useState(snapped)
   const [endTime, setEndTime] = useState(defaultEndTime(snapped))
   const [submitting, setSubmitting] = useState(false)
 
+  const startOptions = isToday ? TIME_OPTIONS.filter(t => t >= minStart) : TIME_OPTIONS
   const isValid = name.trim().length > 0 && startTime < endTime
 
   const handleSubmit = async (e) => {
@@ -122,7 +137,7 @@ export default function BookingModal({ liege, initialTime, onBook, onClose, erro
                   }}
                   className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-gray-50/50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pool-400/50 focus:border-pool-400 appearance-none pr-10 text-[15px]"
                 >
-                  {TIME_OPTIONS.map((t) => (
+                  {startOptions.map((t) => (
                     <option key={t} value={t}>{t} Uhr</option>
                   ))}
                 </select>
@@ -139,7 +154,7 @@ export default function BookingModal({ liege, initialTime, onBook, onClose, erro
                   onChange={(e) => setEndTime(e.target.value)}
                   className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-gray-50/50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pool-400/50 focus:border-pool-400 appearance-none pr-10 text-[15px]"
                 >
-                  {TIME_OPTIONS.filter((t) => t > startTime).map((t) => (
+                  {TIME_OPTIONS.filter((t) => t > startTime && (!minStart || t >= minStart)).map((t) => (
                     <option key={t} value={t}>{t} Uhr</option>
                   ))}
                 </select>
