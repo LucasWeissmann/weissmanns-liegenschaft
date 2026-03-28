@@ -61,6 +61,16 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
 
   return (
     <div>
+      {showNow && (
+        <div className="relative h-5 mb-0.5 pointer-events-none">
+          <span
+            className="absolute -translate-x-1/2 text-[8px] font-bold bg-rose-500 text-white rounded-full px-2 py-0.5 leading-none shadow-sm"
+            style={{ left: `${nowPosition}%` }}
+          >
+            Jetzt
+          </span>
+        </div>
+      )}
       <div
         className="relative h-12 bg-pool-50/60 rounded-2xl overflow-hidden cursor-pointer border border-pool-100/40"
         onClick={(e) => {
@@ -84,14 +94,11 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
 
         {showNow && (
           <div
-            className="absolute z-20 pointer-events-none flex flex-col items-center"
-            style={{ left: `${nowPosition}%`, top: '-2px', bottom: '-2px' }}
+            className="absolute z-20 pointer-events-none flex flex-col items-center -translate-x-1/2"
+            style={{ left: `${nowPosition}%`, top: 0, bottom: 0 }}
           >
-            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/40 animate-pulse-dot" />
-            <div className="w-[2px] flex-1 bg-rose-500/50" />
-            <span className="text-[7px] font-bold bg-rose-500 text-white rounded-full px-1.5 py-px leading-tight shadow-sm">
-              Jetzt
-            </span>
+            <div className="w-[2px] h-full bg-rose-500/60" />
+            <div className="absolute top-0.5 w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/40 animate-pulse-dot" />
           </div>
         )}
 
