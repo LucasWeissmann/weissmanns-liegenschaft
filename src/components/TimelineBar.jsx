@@ -148,20 +148,36 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
 
       {bookings.length > 0 && (
         <div className="mt-2.5 space-y-1">
-          {bookings.map((b) => {
-            const color = getColor(b.name)
-            return (
-              <button
-                key={b.id}
-                onClick={() => onBookingClick?.(b)}
-                className="flex items-center gap-2 w-full text-left px-1 py-1 rounded-lg active:bg-black/5 transition-colors"
-              >
-                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color.bg }} />
-                <span className="text-[13px] font-medium text-gray-800 truncate">{b.name}</span>
-                <span className="text-[12px] text-gray-400 ml-auto shrink-0">{b.startTime}–{b.endTime}</span>
-              </button>
-            )
-          })}
+          {Object.values(
+            [...bookings]
+              .sort((a, b) => a.startTime.localeCompare(b.startTime))
+              .reduce((groups, b) => {
+                if (!groups[b.name]) groups[b.name] = { name: b.name, slots: [] }
+                groups[b.name].slots.push(b)
+                return groups
+              }, {})
+          )
+            .sort((a, b) => a.slots[0].startTime.localeCompare(b.slots[0].startTime))
+            .map(({ name, slots }) => {
+              const color = getColor(name)
+              return (
+                <div key={name} className="flex items-center gap-2 px-1 py-1">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color.bg }} />
+                  <span className="text-[13px] font-medium text-gray-800 truncate">{name}</span>
+                  <span className="text-[12px] text-gray-400 ml-auto shrink-0 flex gap-1.5">
+                    {slots.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => onBookingClick?.(s)}
+                        className="active:bg-black/5 rounded px-0.5 transition-colors"
+                      >
+                        {s.startTime}–{s.endTime}
+                      </button>
+                    ))}
+                  </span>
+                </div>
+              )
+            })}
         </div>
       )}
     </div>
