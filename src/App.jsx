@@ -80,9 +80,7 @@ export default function App() {
     <div className="min-h-dvh flex flex-col">
       <header className="pt-safe px-6 pt-5 pb-2">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-pool-500 to-pool-600 rounded-2xl flex items-center justify-center shadow-lg shadow-pool-500/20">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="w-8 h-8 rounded-lg" />
-          </div>
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="w-12 h-12 rounded-2xl shadow-lg shadow-pool-500/20" />
           <div>
             <h1 className="text-xl font-bold text-gray-900">
               Weißmanns Liegenschaft
