@@ -110,9 +110,9 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
           const width = ((bEnd - bStart) / TOTAL_MINUTES) * 100
           const color = getColor(b.name)
 
-          const isWide = width > 15
-          const startH = b.startTime.split(':')[0].replace(/^0/, '')
-          const endH = b.endTime.split(':')[0].replace(/^0/, '')
+          const isMedium = width > 10
+          const isWide = width > 18
+          const initial = b.name.charAt(0).toUpperCase()
 
           return (
             <button
@@ -121,7 +121,7 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
                 e.stopPropagation()
                 onBookingClick?.(b)
               }}
-              className="absolute top-1 bottom-1 rounded-xl font-semibold flex flex-col items-center justify-center px-2 shadow-sm active:scale-[0.97] transition-all animate-scale-in overflow-hidden"
+              className="absolute top-1 bottom-1 rounded-xl font-semibold flex items-center justify-center shadow-sm active:scale-[0.97] transition-all animate-scale-in overflow-hidden"
               style={{
                 left: `${left}%`,
                 width: `${width}%`,
@@ -130,10 +130,11 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
               }}
               title={`${b.name}: ${b.startTime} – ${b.endTime}`}
             >
-              <span className="truncate text-[11px] leading-tight font-semibold">{b.name}</span>
-              {isWide && (
-                <span className="text-[9px] opacity-70 leading-tight">{startH}–{endH}</span>
-              )}
+              {isWide ? (
+                <span className="truncate text-[11px] leading-tight px-1.5">{b.name}</span>
+              ) : isMedium ? (
+                <span className="text-[11px] leading-tight font-bold">{initial}</span>
+              ) : null}
             </button>
           )
         })}
@@ -144,6 +145,25 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
           <span key={hour}>{label}</span>
         ))}
       </div>
+
+      {bookings.length > 0 && (
+        <div className="mt-2.5 space-y-1">
+          {bookings.map((b) => {
+            const color = getColor(b.name)
+            return (
+              <button
+                key={b.id}
+                onClick={() => onBookingClick?.(b)}
+                className="flex items-center gap-2 w-full text-left px-1 py-1 rounded-lg active:bg-black/5 transition-colors"
+              >
+                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color.bg }} />
+                <span className="text-[13px] font-medium text-gray-800 truncate">{b.name}</span>
+                <span className="text-[12px] text-gray-400 ml-auto shrink-0">{b.startTime}–{b.endTime}</span>
+              </button>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }
