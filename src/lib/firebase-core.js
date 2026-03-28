@@ -3,6 +3,14 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
 } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -15,6 +23,8 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-export const db = initializeFirestore(app, {
+const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
 })
+
+export { db, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp }

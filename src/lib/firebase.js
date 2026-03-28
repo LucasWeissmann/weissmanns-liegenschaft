@@ -1,22 +1,13 @@
-let _db = null
-let _firebaseReady = null
+const _ready = import('./firebase-core.js')
 
-function getDb() {
-  if (_firebaseReady) return _firebaseReady
-  _firebaseReady = import('./firebase-core.js').then(({ db }) => {
-    _db = db
-    return db
-  })
-  return _firebaseReady
-}
+// Pre-warm: start loading Firebase immediately on module import
+_ready.catch(() => {})
 
 export function subscribeToBookings(date, callback) {
   let unsubscribe = null
   let cancelled = false
 
-  getDb().then(async (db) => {
-    if (cancelled) return
-    const { collection, query, where, onSnapshot } = await import('firebase/firestore')
+  _ready.then(({ db, collection, query, where, onSnapshot }) => {
     if (cancelled) return
     const q = query(
       collection(db, 'bookings'),
@@ -38,8 +29,7 @@ export function subscribeToBookings(date, callback) {
 }
 
 export async function createBooking({ liege, date, startTime, endTime, name }) {
-  const db = await getDb()
-  const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
+  const { db, collection, addDoc, serverTimestamp } = await _ready
   return addDoc(collection(db, 'bookings'), {
     liege,
     date,
@@ -51,8 +41,7 @@ export async function createBooking({ liege, date, startTime, endTime, name }) {
 }
 
 export async function removeBooking(bookingId) {
-  const db = await getDb()
-  const { doc, deleteDoc } = await import('firebase/firestore')
+  const { db, doc, deleteDoc } = await _ready
   return deleteDoc(doc(db, 'bookings', bookingId))
 }
 
