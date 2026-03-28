@@ -52,14 +52,14 @@ export default function App() {
     return unsubscribe
   }, [dateStr])
 
-  const showToast = (message) => {
-    setToast(message)
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
     setTimeout(() => setToast(null), 3000)
   }
 
   const handleSlotClick = (liege, time) => {
     if (isPast(date)) {
-      showToast('Buchungen in der Vergangenheit sind nicht möglich')
+      showToast('Buchungen in der Vergangenheit sind nicht möglich', 'error')
       return
     }
     setBookingError(null)
@@ -88,7 +88,7 @@ export default function App() {
     setBookingError(null)
     showToast('Buchung erfolgreich!')
     createBooking({ liege, date: dateStr, startTime, endTime, name }).catch(() => {
-      showToast('Fehler beim Speichern — bitte prüfe deine Verbindung')
+      showToast('Fehler beim Speichern — bitte prüfe deine Verbindung', 'error')
     })
   }
 
@@ -96,7 +96,7 @@ export default function App() {
     setDeleteModal(null)
     showToast('Buchung gelöscht')
     removeBooking(bookingId).catch(() => {
-      showToast('Fehler beim Löschen — bitte prüfe deine Verbindung')
+      showToast('Fehler beim Löschen — bitte prüfe deine Verbindung', 'error')
     })
   }
 
@@ -183,7 +183,7 @@ export default function App() {
         />
       )}
 
-      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   )
 }
