@@ -1,35 +1,47 @@
-const _ready = import('./firebase-core.js')
+import { initializeApp } from 'firebase/app'
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  collection,
+  query,
+  where,
+  onSnapshot,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore'
 
-// Pre-warm: start loading Firebase immediately on module import
-_ready.catch(() => {})
-
-export function subscribeToBookings(date, callback) {
-  let unsubscribe = null
-  let cancelled = false
-
-  _ready.then(({ db, collection, query, where, onSnapshot }) => {
-    if (cancelled) return
-    const q = query(
-      collection(db, 'bookings'),
-      where('date', '==', date)
-    )
-    unsubscribe = onSnapshot(q, (snapshot) => {
-      const bookings = snapshot.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-      }))
-      callback(bookings)
-    })
-  })
-
-  return () => {
-    cancelled = true
-    unsubscribe?.()
-  }
+const firebaseConfig = {
+  apiKey: 'AIzaSyD4Y9oMOaYViwJ2y0mkJok7vGlIVGtjZ1E',
+  authDomain: 'weissmanns-liegenschaft.firebaseapp.com',
+  projectId: 'weissmanns-liegenschaft',
+  storageBucket: 'weissmanns-liegenschaft.firebasestorage.app',
+  messagingSenderId: '590020533222',
+  appId: '1:590020533222:web:bfd8d048f085f42a479427',
 }
 
-export async function createBooking({ liege, date, startTime, endTime, name }) {
-  const { db, collection, addDoc, serverTimestamp } = await _ready
+const app = initializeApp(firebaseConfig)
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+})
+
+export function subscribeToBookings(date, callback) {
+  const q = query(
+    collection(db, 'bookings'),
+    where('date', '==', date)
+  )
+  return onSnapshot(q, (snapshot) => {
+    const bookings = snapshot.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    }))
+    callback(bookings)
+  })
+}
+
+export function createBooking({ liege, date, startTime, endTime, name }) {
   return addDoc(collection(db, 'bookings'), {
     liege,
     date,
@@ -40,8 +52,7 @@ export async function createBooking({ liege, date, startTime, endTime, name }) {
   })
 }
 
-export async function removeBooking(bookingId) {
-  const { db, doc, deleteDoc } = await _ready
+export function removeBooking(bookingId) {
   return deleteDoc(doc(db, 'bookings', bookingId))
 }
 
