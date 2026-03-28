@@ -120,6 +120,15 @@ body {
   animation: toastOut 0.3s ease-in both;
 }
 
+@keyframes syncSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-sync {
+  animation: syncSlide 1.2s ease-in-out infinite;
+}
+
 .skeleton {
   background: linear-gradient(90deg, #f1f0ed 25%, #e8e5e0 50%, #f1f0ed 75%);
   background-size: 200% 100%;

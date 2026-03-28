@@ -116,6 +116,14 @@ export default function App() {
         </div>
       </header>
 
+      <div className="h-0.5 mx-6 rounded-full overflow-hidden">
+        {loading && (
+          <div className="h-full w-full bg-pool-100">
+            <div className="h-full w-1/2 bg-gradient-to-r from-transparent via-pool-400 to-transparent animate-sync" />
+          </div>
+        )}
+      </div>
+
       <div className="px-6 mb-2">
         <DayNavigator date={date} onDateChange={setDate} />
       </div>
