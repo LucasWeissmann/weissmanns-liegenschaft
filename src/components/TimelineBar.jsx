@@ -15,15 +15,21 @@ function germanNowMinutes() {
   return Number(parts.hour) * 60 + Number(parts.minute)
 }
 
-const BOOKING_COLORS = [
-  { bg: '#0d9488', light: '#5eead4' },
-  { bg: '#d97706', light: '#fbbf24' },
-  { bg: '#7c3aed', light: '#a78bfa' },
-  { bg: '#db2777', light: '#f472b6' },
-  { bg: '#0284c7', light: '#38bdf8' },
-  { bg: '#ea580c', light: '#fb923c' },
-  { bg: '#059669', light: '#6ee7b7' },
-  { bg: '#4338ca', light: '#818cf8' },
+const PASTEL_COLORS = [
+  { bg: '#a8dadc', text: '#1d3557' },
+  { bg: '#f1c0e8', text: '#5a1846' },
+  { bg: '#b9fbc0', text: '#1b4332' },
+  { bg: '#ffd6a5', text: '#7c4a03' },
+  { bg: '#bdb2ff', text: '#2d1b69' },
+  { bg: '#caffbf', text: '#1a5c1a' },
+  { bg: '#ffc6ff', text: '#6b1a6b' },
+  { bg: '#a0c4ff', text: '#1a3a6b' },
+]
+
+const TIME_LABELS = [
+  { hour: 7, label: '7:00' },
+  { hour: 14, label: '14:00' },
+  { hour: 21, label: '21:00' },
 ]
 
 function toMinutes(t) {
@@ -36,7 +42,7 @@ function getColor(name) {
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash)
   }
-  return BOOKING_COLORS[Math.abs(hash) % BOOKING_COLORS.length]
+  return PASTEL_COLORS[Math.abs(hash) % PASTEL_COLORS.length]
 }
 
 export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingClick }) {
@@ -54,17 +60,9 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
     : null
 
   return (
-    <div className="mt-1">
-      <div className="flex justify-between text-[10px] text-gray-400 font-medium px-0.5 mb-1.5">
-        {Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => {
-          const hour = START_HOUR + i
-          if (i % 2 !== 0 && i !== TOTAL_HOURS) return <span key={hour} />
-          return <span key={hour}>{hour}</span>
-        })}
-      </div>
-
+    <div>
       <div
-        className="relative h-16 bg-gray-50 rounded-2xl overflow-hidden cursor-pointer border border-gray-100"
+        className="relative h-12 bg-pool-50/60 rounded-2xl overflow-hidden cursor-pointer border border-pool-100/40"
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect()
           const x = e.clientX - rect.left
@@ -79,21 +77,21 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
         {Array.from({ length: TOTAL_HOURS - 1 }, (_, i) => (
           <div
             key={i}
-            className="absolute top-0 bottom-0 w-px bg-gray-200/50"
+            className="absolute top-0 bottom-0 w-px bg-pool-200/30"
             style={{ left: `${((i + 1) / TOTAL_HOURS) * 100}%` }}
           />
         ))}
 
         {showNow && (
           <div
-            className="absolute bottom-0 z-20 pointer-events-none flex flex-col items-center"
-            style={{ left: `${nowPosition}%`, top: '-18px' }}
+            className="absolute z-20 pointer-events-none flex flex-col items-center"
+            style={{ left: `${nowPosition}%`, top: '-2px', bottom: '-2px' }}
           >
-            <span className="text-[7px] font-bold bg-rose-500 text-white rounded-full px-1.5 py-px leading-tight mb-0.5 shadow-sm shadow-rose-500/30">
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-md shadow-rose-500/40 animate-pulse-dot" />
+            <div className="w-[2px] flex-1 bg-rose-500/50" />
+            <span className="text-[7px] font-bold bg-rose-500 text-white rounded-full px-1.5 py-px leading-tight shadow-sm">
               Jetzt
             </span>
-            <div className="w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50" />
-            <div className="w-[1.5px] flex-1 bg-rose-500/40" />
           </div>
         )}
 
@@ -115,21 +113,30 @@ export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingC
                 e.stopPropagation()
                 onBookingClick?.(b)
               }}
-              className="absolute top-1.5 bottom-1.5 rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 shadow-md active:scale-[0.97] transition-all animate-scale-in overflow-hidden"
+              className="absolute top-1 bottom-1 rounded-xl font-semibold flex flex-col items-center justify-center px-2 shadow-sm active:scale-[0.97] transition-all animate-scale-in overflow-hidden"
               style={{
                 left: `${left}%`,
                 width: `${width}%`,
-                background: `linear-gradient(135deg, ${color.light} 0%, ${color.bg} 100%)`,
+                backgroundColor: color.bg,
+                color: color.text,
               }}
               title={`${b.name}: ${b.startTime} – ${b.endTime}`}
             >
-              <span className="truncate drop-shadow-sm text-[11px] leading-tight">{b.name}</span>
+              <span className="truncate text-[11px] leading-tight font-semibold">{b.name}</span>
               {isWide && (
-                <span className="text-[9px] opacity-80 leading-tight">{startH}–{endH}</span>
+                <span className="text-[9px] opacity-70 leading-tight">{startH}–{endH}</span>
               )}
             </button>
           )
         })}
+      </div>
+
+      <div className="flex justify-between text-[10px] text-gray-400 font-medium px-1 mt-1.5">
+        {TIME_LABELS.map(({ hour, label }) => (
+          <span key={hour} style={{ position: 'relative', left: `${((hour - START_HOUR) / TOTAL_HOURS) * 0}%` }}>
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   )

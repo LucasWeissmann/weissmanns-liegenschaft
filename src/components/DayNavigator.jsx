@@ -5,9 +5,10 @@ const TZ = 'Europe/Berlin'
 function formatDate(date) {
   return new Intl.DateTimeFormat('de-DE', {
     timeZone: TZ,
-    weekday: 'short',
+    weekday: 'long',
     day: 'numeric',
     month: 'long',
+    year: 'numeric',
   }).format(date)
 }
 
@@ -20,7 +21,7 @@ function isToday(date) {
 }
 
 function toKey(date) {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`
+  return toGermanDateKey(date)
 }
 
 export default function DayNavigator({ date, onDateChange }) {
@@ -52,42 +53,49 @@ export default function DayNavigator({ date, onDateChange }) {
       : ''
 
   return (
-    <div className="flex items-center justify-between py-4">
-      <button
-        onClick={() => navigate(-1)}
-        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 active:scale-95 transition-transform"
-        aria-label="Vorheriger Tag"
-      >
-        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+    <div className="bg-white/60 backdrop-blur-md rounded-3xl p-4 shadow-lg border border-white/80 my-4">
+      <div className="flex items-center justify-between gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center active:scale-95 transition-transform shadow-sm"
+          aria-label="Vorheriger Tag"
+        >
+          <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
 
-      <button onClick={goToday} className="text-center min-w-0 flex-1 mx-3 overflow-hidden">
-        <div key={toKey(date)} className={animClass}>
-          {isToday(date) ? (
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-pool-700 bg-pool-100 px-2.5 py-0.5 rounded-full mb-1">
-              <span className="w-1.5 h-1.5 bg-pool-500 rounded-full animate-pulse" />
-              Heute
-            </span>
-          ) : (
-            <span className="text-[11px] font-medium text-pool-600 mb-1 block">
-              ← Zurück zu heute
-            </span>
-          )}
-          <p className="text-[17px] font-bold text-gray-900 tracking-tight">{formatDate(date)}</p>
-        </div>
-      </button>
+        <button onClick={goToday} className="text-center min-w-0 flex-1 overflow-hidden">
+          <div key={toKey(date)} className={animClass}>
+            <p className="font-semibold text-gray-900 text-[15px]">{formatDate(date)}</p>
+            {isToday(date) && (
+              <span className="inline-flex items-center gap-1.5 mt-1 px-3 py-0.5 bg-pool-500 text-white text-xs font-medium rounded-full">
+                <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                Heute
+              </span>
+            )}
+          </div>
+        </button>
 
-      <button
-        onClick={() => navigate(1)}
-        className="w-11 h-11 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-sm shadow-sm border border-gray-100 active:scale-95 transition-transform"
-        aria-label="Nächster Tag"
-      >
-        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+        <button
+          onClick={() => navigate(1)}
+          className="w-10 h-10 rounded-full bg-white/80 flex items-center justify-center active:scale-95 transition-transform shadow-sm"
+          aria-label="Nächster Tag"
+        >
+          <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {!isToday(date) && (
+        <button
+          onClick={goToday}
+          className="w-full mt-3 py-2 bg-pool-500/15 text-pool-700 rounded-2xl text-sm font-medium active:scale-[0.98] transition-all"
+        >
+          Zurück zu heute
+        </button>
+      )}
     </div>
   )
 }

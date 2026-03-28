@@ -67,15 +67,28 @@ export default function BookingModal({ liege, initialTime, onBook, onClose, erro
         className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 pb-safe shadow-2xl animate-slide-up"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-10 h-1 bg-gray-200 rounded-full" />
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:scale-95 transition-transform"
+          >
+            <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-pool-100 flex items-center justify-center">
-            <span className="text-sm font-bold text-pool-700">{liege}</span>
+        <div className="bg-sand-100 rounded-2xl p-4 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-pool-500/15 flex items-center justify-center">
+              <span className="text-sm font-bold text-pool-700">{liege}</span>
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Liege {liege} buchen</h3>
+              <p className="text-sm text-gray-500">Wähle Name und Zeitraum</p>
+            </div>
           </div>
-          <h3 className="text-lg font-bold text-gray-900">
-            Liege {liege} buchen
-          </h3>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -144,22 +157,13 @@ export default function BookingModal({ liege, initialTime, onBook, onClose, erro
             </div>
           )}
 
-          <div className="flex gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-3.5 rounded-2xl border border-gray-200 text-gray-600 font-semibold active:scale-[0.98] transition-transform"
-            >
-              Abbrechen
-            </button>
-            <button
-              type="submit"
-              disabled={!isValid || submitting}
-              className="flex-1 py-3.5 rounded-2xl bg-pool-600 text-white font-bold shadow-lg shadow-pool-600/25 disabled:opacity-40 disabled:shadow-none active:scale-[0.98] transition-all"
-            >
-              {submitting ? 'Wird gebucht…' : 'Buchen'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={!isValid || submitting}
+            className="w-full py-4 rounded-2xl bg-gradient-to-r from-pool-500 to-pool-600 text-white font-bold text-base shadow-lg shadow-pool-500/25 disabled:opacity-40 disabled:shadow-none active:scale-[0.98] transition-all"
+          >
+            {submitting ? 'Wird gebucht…' : 'Jetzt buchen'}
+          </button>
         </form>
       </div>
     </div>

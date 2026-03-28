@@ -3,6 +3,7 @@ import DayNavigator from './components/DayNavigator'
 import LiegeCard from './components/LiegeCard'
 import BookingModal from './components/BookingModal'
 import DeleteConfirm from './components/DeleteConfirm'
+import Toast from './components/Toast'
 import { subscribeToBookings, createBooking, removeBooking, hasOverlap } from './lib/firebase'
 
 const TZ = 'Europe/Berlin'
@@ -32,6 +33,7 @@ export default function App() {
   const [bookingModal, setBookingModal] = useState(null)
   const [deleteModal, setDeleteModal] = useState(null)
   const [bookingError, setBookingError] = useState(null)
+  const [toast, setToast] = useState(null)
 
   const dateStr = toDateString(date)
   const isToday = checkIsToday(date)
@@ -45,6 +47,11 @@ export default function App() {
     })
     return unsubscribe
   }, [dateStr])
+
+  const showToast = (message) => {
+    setToast(message)
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const handleSlotClick = (liege, time) => {
     setBookingError(null)
@@ -60,43 +67,49 @@ export default function App() {
     await createBooking({ liege, date: dateStr, startTime, endTime, name })
     setBookingModal(null)
     setBookingError(null)
+    showToast('Buchung erfolgreich!')
   }
 
   const handleDelete = async (bookingId) => {
     await removeBooking(bookingId)
     setDeleteModal(null)
+    showToast('Buchung gelöscht')
   }
 
   return (
     <div className="min-h-dvh flex flex-col">
-      <header className="pt-safe px-5 pt-5 pb-1">
-        <div className="flex flex-col items-center">
-          <div className="flex items-center gap-2.5">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="w-8 h-8 rounded-xl" />
-            <h1 className="text-[22px] font-extrabold text-gray-900 tracking-tight">
+      <header className="pt-safe px-6 pt-5 pb-2">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gradient-to-br from-pool-500 to-pool-600 rounded-2xl flex items-center justify-center shadow-lg shadow-pool-500/20">
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="w-8 h-8 rounded-lg" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">
               Weißmanns Liegenschaft
             </h1>
+            <p className="text-sm text-gray-500">
+              Poolseite · Familie Weißmann
+            </p>
           </div>
-          <p className="text-[11px] text-gray-400 font-medium tracking-widest uppercase mt-1">
-            Poolseite · Familie Weißmann
-          </p>
         </div>
       </header>
 
-      <div className="px-5">
+      <div className="px-6 mb-2">
         <DayNavigator date={date} onDateChange={setDate} />
       </div>
 
-      <main className="flex-1 px-5 pb-8 space-y-4 mt-1">
+      <main className="flex-1 px-6 pb-8 space-y-4">
         {initialLoad ? (
           [1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-9 h-9 rounded-xl skeleton" />
-                <div className="h-4 w-20 rounded-lg skeleton" />
-                <div className="ml-auto h-5 w-14 rounded-full skeleton" />
+            <div key={i} className="bg-white/40 backdrop-blur-md rounded-3xl p-6 shadow-lg border border-white/60">
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-5 w-20 rounded-full skeleton" />
+                <div className="h-5 w-24 rounded-full skeleton" />
               </div>
-              <div className="h-16 rounded-2xl skeleton" />
+              <div className="h-12 rounded-2xl skeleton" />
+              <div className="flex justify-between mt-2 px-1">
+                {[1, 2, 3].map((j) => <div key={j} className="h-3 w-8 rounded skeleton" />)}
+              </div>
             </div>
           ))
         ) : (
@@ -138,6 +151,8 @@ export default function App() {
           onClose={() => setDeleteModal(null)}
         />
       )}
+
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }
