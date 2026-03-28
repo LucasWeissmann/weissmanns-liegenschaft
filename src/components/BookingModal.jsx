@@ -1,0 +1,167 @@
+import { useState } from 'react'
+
+function generateTimeOptions() {
+  const options = []
+  for (let h = 7; h <= 21; h++) {
+    for (let m = 0; m < 60; m += 30) {
+      if (h === 21 && m > 0) break
+      options.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`)
+    }
+  }
+  return options
+}
+
+const TIME_OPTIONS = generateTimeOptions()
+
+function snapToNearest(time) {
+  const [h, m] = time.split(':').map(Number)
+  const snapped = m < 15 ? '00' : m < 45 ? '30' : '00'
+  const hour = m >= 45 ? h + 1 : h
+  if (hour > 21) return '21:00'
+  if (hour < 7) return '07:00'
+  return `${String(hour).padStart(2, '0')}:${snapped}`
+}
+
+function defaultEndTime(startTime) {
+  const [h, m] = startTime.split(':').map(Number)
+  const endH = Math.min(h + 2, 21)
+  return `${String(endH).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+function SelectChevron() {
+  return (
+    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+      <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  )
+}
+
+export default function BookingModal({ liege, initialTime, onBook, onClose, error }) {
+  const snapped = snapToNearest(initialTime || '10:00')
+  const [name, setName] = useState('')
+  const [startTime, setStartTime] = useState(snapped)
+  const [endTime, setEndTime] = useState(defaultEndTime(snapped))
+  const [submitting, setSubmitting] = useState(false)
+
+  const isValid = name.trim().length > 0 && startTime < endTime
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!isValid || submitting) return
+    setSubmitting(true)
+    try {
+      await onBook({ liege, name, startTime, endTime })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 pb-safe shadow-2xl animate-slide-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mb-6" />
+
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-9 h-9 rounded-xl bg-pool-100 flex items-center justify-center">
+            <span className="text-sm font-bold text-pool-700">{liege}</span>
+          </div>
+          <h3 className="text-lg font-bold text-gray-900">
+            Liege {liege} buchen
+          </h3>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-[13px] font-semibold text-gray-700 mb-2">
+              Dein Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="z.B. Lucas"
+              autoFocus
+              className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-gray-50/50 text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-pool-400/50 focus:border-pool-400 transition-shadow text-[15px]"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-700 mb-2">
+                Von
+              </label>
+              <div className="relative">
+                <select
+                  value={startTime}
+                  onChange={(e) => {
+                    setStartTime(e.target.value)
+                    if (e.target.value >= endTime) {
+                      setEndTime(defaultEndTime(e.target.value))
+                    }
+                  }}
+                  className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-gray-50/50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pool-400/50 focus:border-pool-400 appearance-none pr-10 text-[15px]"
+                >
+                  {TIME_OPTIONS.map((t) => (
+                    <option key={t} value={t}>{t} Uhr</option>
+                  ))}
+                </select>
+                <SelectChevron />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[13px] font-semibold text-gray-700 mb-2">
+                Bis
+              </label>
+              <div className="relative">
+                <select
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 bg-gray-50/50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-pool-400/50 focus:border-pool-400 appearance-none pr-10 text-[15px]"
+                >
+                  {TIME_OPTIONS.filter((t) => t > startTime).map((t) => (
+                    <option key={t} value={t}>{t} Uhr</option>
+                  ))}
+                </select>
+                <SelectChevron />
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div className="flex items-start gap-2 text-sm text-rose-600 bg-rose-50 border border-rose-100 px-4 py-3 rounded-2xl">
+              <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+              </svg>
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3.5 rounded-2xl border border-gray-200 text-gray-600 font-semibold active:scale-[0.98] transition-transform"
+            >
+              Abbrechen
+            </button>
+            <button
+              type="submit"
+              disabled={!isValid || submitting}
+              className="flex-1 py-3.5 rounded-2xl bg-pool-600 text-white font-bold shadow-lg shadow-pool-600/25 disabled:opacity-40 disabled:shadow-none active:scale-[0.98] transition-all"
+            >
+              {submitting ? 'Wird gebucht…' : 'Buchen'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}

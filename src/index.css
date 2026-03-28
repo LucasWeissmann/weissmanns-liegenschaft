@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pool-50: #f0fdfa;
+  --color-pool-100: #ccfbf1;
+  --color-pool-200: #99f6e4;
+  --color-pool-300: #5eead4;
+  --color-pool-400: #2dd4bf;
+  --color-pool-500: #14b8a6;
+  --color-pool-600: #0d9488;
+  --color-pool-700: #0f766e;
+  --color-pool-800: #115e59;
+  --color-pool-900: #134e4a;
+
+  --color-sand-100: #fef3c7;
+  --color-sand-200: #fde68a;
+  --color-sand-300: #fcd34d;
+  --color-sand-400: #fbbf24;
+
+  --color-coral-400: #fb7185;
+  --color-coral-500: #f43f5e;
+
+  --font-sans: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html, body, #root {
+  min-height: 100dvh;
+}
+
+body {
+  background-color: #faf9f6;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(20, 184, 166, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 75%, rgba(251, 191, 36, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 60% 10%, rgba(139, 92, 246, 0.04) 0%, transparent 60%),
+    linear-gradient(180deg, #faf9f6 0%, #eef7f4 100%);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@supports(padding: env(safe-area-inset-top)) {
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideFromLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideFromRight {
+  from { opacity: 0; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-slide-from-left {
+  animation: slideFromLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-from-right {
+  animation: slideFromRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f4 25%, #e8efed 50%, #f1f5f4 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
