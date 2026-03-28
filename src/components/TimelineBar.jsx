@@ -4,6 +4,16 @@ const START_HOUR = 7
 const END_HOUR = 21
 const TOTAL_HOURS = END_HOUR - START_HOUR
 const TOTAL_MINUTES = TOTAL_HOURS * 60
+const TZ = 'Europe/Berlin'
+
+function germanNowMinutes() {
+  const now = new Date()
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('de-DE', { timeZone: TZ, hour: 'numeric', minute: 'numeric', hour12: false })
+      .formatToParts(now).map(p => [p.type, p.value])
+  )
+  return Number(parts.hour) * 60 + Number(parts.minute)
+}
 
 const BOOKING_COLORS = [
   { bg: '#0d9488', light: '#5eead4' },
@@ -30,17 +40,11 @@ function getColor(name) {
 }
 
 export default function TimelineBar({ bookings, isToday, onSlotClick, onBookingClick }) {
-  const [nowMinutes, setNowMinutes] = useState(() => {
-    const n = new Date()
-    return n.getHours() * 60 + n.getMinutes()
-  })
+  const [nowMinutes, setNowMinutes] = useState(germanNowMinutes)
 
   useEffect(() => {
     if (!isToday) return
-    const timer = setInterval(() => {
-      const n = new Date()
-      setNowMinutes(n.getHours() * 60 + n.getMinutes())
-    }, 60000)
+    const timer = setInterval(() => setNowMinutes(germanNowMinutes()), 60000)
     return () => clearInterval(timer)
   }, [isToday])
 

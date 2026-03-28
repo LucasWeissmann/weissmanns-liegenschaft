@@ -1,25 +1,22 @@
 import { useState, useRef } from 'react'
 
-const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
-const MONTHS = [
-  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
-]
+const TZ = 'Europe/Berlin'
 
 function formatDate(date) {
-  const day = WEEKDAYS[date.getDay()]
-  const d = date.getDate()
-  const month = MONTHS[date.getMonth()]
-  return `${day}, ${d}. ${month}`
+  return new Intl.DateTimeFormat('de-DE', {
+    timeZone: TZ,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'long',
+  }).format(date)
+}
+
+function toGermanDateKey(date) {
+  return new Intl.DateTimeFormat('de-DE', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(date)
 }
 
 function isToday(date) {
-  const now = new Date()
-  return (
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  )
+  return toGermanDateKey(date) === toGermanDateKey(new Date())
 }
 
 function toKey(date) {

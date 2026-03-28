@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app'
 import {
-  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   query,
   where,
@@ -21,7 +23,9 @@ const firebaseConfig = {
 }
 
 const app = initializeApp(firebaseConfig)
-const db = getFirestore(app)
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+})
 
 const BOOKINGS_COLLECTION = 'bookings'
 

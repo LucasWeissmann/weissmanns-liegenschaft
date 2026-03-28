@@ -5,23 +5,29 @@ import BookingModal from './components/BookingModal'
 import DeleteConfirm from './components/DeleteConfirm'
 import { subscribeToBookings, createBooking, removeBooking, hasOverlap } from './lib/firebase'
 
+const TZ = 'Europe/Berlin'
+
+function germanDateParts(date) {
+  const fmt = new Intl.DateTimeFormat('de-DE', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' })
+  const parts = Object.fromEntries(fmt.formatToParts(date).map(p => [p.type, p.value]))
+  return { year: parts.year, month: parts.month, day: parts.day }
+}
+
 function toDateString(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  const { year, month, day } = germanDateParts(date)
+  return `${year}-${month}-${day}`
 }
 
 function checkIsToday(date) {
   const now = new Date()
-  return (
-    date.getDate() === now.getDate() &&
-    date.getMonth() === now.getMonth() &&
-    date.getFullYear() === now.getFullYear()
-  )
+  return toDateString(date) === toDateString(now)
 }
 
 export default function App() {
   const [date, setDate] = useState(new Date())
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
+  const [initialLoad, setInitialLoad] = useState(true)
 
   const [bookingModal, setBookingModal] = useState(null)
   const [deleteModal, setDeleteModal] = useState(null)
@@ -35,6 +41,7 @@ export default function App() {
     const unsubscribe = subscribeToBookings(dateStr, (data) => {
       setBookings(data)
       setLoading(false)
+      setInitialLoad(false)
     })
     return unsubscribe
   }, [dateStr])
@@ -81,7 +88,7 @@ export default function App() {
       </div>
 
       <main className="flex-1 px-5 pb-8 space-y-4 mt-1">
-        {loading ? (
+        {initialLoad ? (
           [1, 2].map((i) => (
             <div key={i} className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
@@ -94,10 +101,10 @@ export default function App() {
           ))
         ) : (
           [1, 2].map((liege, i) => (
-            <div key={liege} className="animate-fade-in" style={{ animationDelay: `${i * 80}ms` }}>
+            <div key={liege} className={`animate-fade-in ${loading ? 'opacity-60' : ''} transition-opacity`} style={{ animationDelay: `${i * 80}ms` }}>
               <LiegeCard
                 liegeNumber={liege}
-                bookings={bookings}
+                bookings={loading ? [] : bookings}
                 isToday={isToday}
                 onSlotClick={handleSlotClick}
                 onBookingClick={(booking) => setDeleteModal(booking)}
